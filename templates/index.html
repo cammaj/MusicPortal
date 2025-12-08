@@ -1,22 +1,55 @@
 {% extends 'base.html' %}
 {% block content %}
-<section class="hero">
-  <div>
-    <h1>Discover and share concerts</h1>
-    <p>Connect bands with fans and keep track of your favourite shows.</p>
+<section class="hero-grid">
+  <div class="hero-copy glass">
+    <p class="eyebrow">Concert Explorer</p>
+    <h1>Spotkaj się na scenie — artyści i fani w jednym miejscu.</h1>
+    <p class="muted">Twórz listy koncertów, rezerwuj ulubione wydarzenia i wracaj do nich kiedy chcesz.</p>
     <div class="cta">
-      <a class="button" href="{{ url_for('register') }}">Get Started</a>
-      <a class="button ghost" href="{{ url_for('search_concerts') }}">Browse Concerts</a>
+      <a class="button" href="{{ url_for('register') }}">Dołącz teraz</a>
+      <a class="button ghost" href="{{ url_for('search_concerts') }}">Przeglądaj</a>
+    </div>
+    <div class="chip-row">
+      <span class="chip">Live vibes</span>
+      <span class="chip">Tour dates</span>
+      <span class="chip">Fan picks</span>
     </div>
   </div>
-  <div class="hero-card">
-    <div class="avatar-grid">
-      <div class="avatar">🎤</div>
-      <div class="avatar">🎸</div>
-      <div class="avatar">🎧</div>
-      <div class="avatar">🥁</div>
+  <div class="hero-showcase glass">
+    <div class="card-stack">
+      <div class="mini-card">
+        <div class="mini-top">
+          <span class="pill">Indie</span>
+          <span class="heart">♥</span>
+        </div>
+        <p class="mini-title">Sunset Avenue</p>
+        <p class="mini-meta">Gdańsk · Fri 21:00</p>
+      </div>
+      <div class="mini-card alt">
+        <div class="mini-top">
+          <span class="pill">Jazz</span>
+          <span class="pill soft">New</span>
+        </div>
+        <p class="mini-title">Night Owls</p>
+        <p class="mini-meta">Warszawa · Sat 19:30</p>
+      </div>
+      <div class="mini-card">
+        <div class="mini-top">
+          <span class="pill">Rock</span>
+          <span class="heart">★</span>
+        </div>
+        <p class="mini-title">Electric Pulse</p>
+        <p class="mini-meta">Kraków · Sun 20:00</p>
+      </div>
     </div>
-    <p>Create an account as a band to publish listings, or as a fan to curate your personal list.</p>
+    <div class="avatar-row">
+      <div class="avatar">🎸</div>
+      <div class="avatar">🎤</div>
+      <div class="avatar">🥁</div>
+      <div class="avatar">🎧</div>
+      <div class="avatar">🎷</div>
+    </div>
+    <p class="muted small">Dla zespołów: edytuj status wydarzenia. Dla fanów: zapisuj ulubione koncerty.</p>
   </div>
 </section>
 {% endblock %}

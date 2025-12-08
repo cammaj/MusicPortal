@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Find concerts</h2>
-<form method="get" class="card filter-grid">
+<div class="section-header">
+  <div>
+    <p class="eyebrow">Fan zone</p>
+    <h2>Discover concerts</h2>
+  </div>
+</div>
+<form method="get" class="glass filter-row">
   <label>Band
     <input type="text" name="band" value="{{ band_query }}" placeholder="Search by band name">
   </label>
@@ -19,41 +24,34 @@
   <button type="submit" class="button">Search</button>
 </form>
 
-<div class="card">
+<div class="card-grid">
   {% if concerts %}
-    <table>
-      <thead>
-        <tr><th>Band</th><th>Date & Time</th><th>Venue</th><th>Cost</th><th>Status</th><th></th></tr>
-      </thead>
-      <tbody>
-        {% for concert in concerts %}
-        <tr>
-          <td>{{ concert['band_name'] }}</td>
-          <td>{{ concert['concert_datetime'] }}</td>
-          <td>{{ concert['venue'] }}</td>
-          <td>{{ concert['cost'] }}</td>
-          <td class="status {{ concert['status'] }}">{{ concert['status'] }}</td>
-          <td>
-            {% if g.user and g.user['role'] == 'fan' %}
-              {% if concert['id'] in selected_ids %}
-                <form method="post" action="{{ url_for('remove_selected', concert_id=concert['id']) }}">
-                  <button class="button ghost" type="submit">Remove</button>
-                </form>
-              {% else %}
-                <form method="post" action="{{ url_for('add_selected', concert_id=concert['id']) }}">
-                  <button class="button" type="submit">Add</button>
-                </form>
-              {% endif %}
-            {% else %}
-              <a class="button ghost" href="{{ url_for('login') }}">Login to save</a>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    {% for concert in concerts %}
+    <div class="concert-card">
+      <div class="concert-meta">
+        <span class="pill">{{ concert['status'] }}</span>
+        <span class="pill soft">{{ concert['venue'] }}</span>
+      </div>
+      <h3>{{ concert['band_name'] }}</h3>
+      <p class="muted">{{ concert['concert_datetime'] }}</p>
+      <p class="muted">Cost: {{ concert['cost'] }}</p>
+      {% if g.user and g.user['role'] == 'fan' %}
+        {% if concert['id'] in selected_ids %}
+          <form method="post" action="{{ url_for('remove_selected', concert_id=concert['id']) }}">
+            <button class="button ghost" type="submit">Remove</button>
+          </form>
+        {% else %}
+          <form method="post" action="{{ url_for('add_selected', concert_id=concert['id']) }}">
+            <button class="button" type="submit">Add to Favorites</button>
+          </form>
+        {% endif %}
+      {% else %}
+        <a class="button ghost" href="{{ url_for('login') }}">Login to save</a>
+      {% endif %}
+    </div>
+    {% endfor %}
   {% else %}
-    <p>No concerts found. Try adjusting your search.</p>
+    <div class="empty">No concerts found. Try adjusting your search.</div>
   {% endif %}
 </div>
 {% endblock %}

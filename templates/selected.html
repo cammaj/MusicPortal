@@ -1,31 +1,29 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Selected Concerts</h2>
-<div class="card">
+<div class="section-header">
+  <div>
+    <p class="eyebrow">Ulubione</p>
+    <h2>Selected Concerts</h2>
+  </div>
+</div>
+<div class="card-grid">
   {% if concerts %}
-    <table>
-      <thead>
-        <tr><th>Band</th><th>Date & Time</th><th>Venue</th><th>Cost</th><th>Status</th><th></th></tr>
-      </thead>
-      <tbody>
-        {% for concert in concerts %}
-        <tr>
-          <td>{{ concert['band_name'] }}</td>
-          <td>{{ concert['concert_datetime'] }}</td>
-          <td>{{ concert['venue'] }}</td>
-          <td>{{ concert['cost'] }}</td>
-          <td class="status {{ concert['status'] }}">{{ concert['status'] }}</td>
-          <td>
-            <form method="post" action="{{ url_for('remove_selected', concert_id=concert['id']) }}">
-              <button class="button ghost" type="submit">Remove</button>
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    {% for concert in concerts %}
+    <div class="concert-card">
+      <div class="concert-meta">
+        <span class="pill">{{ concert['status'] }}</span>
+        <span class="pill soft">{{ concert['venue'] }}</span>
+      </div>
+      <h3>{{ concert['band_name'] }}</h3>
+      <p class="muted">{{ concert['concert_datetime'] }}</p>
+      <p class="muted">Cost: {{ concert['cost'] }}</p>
+      <form method="post" action="{{ url_for('remove_selected', concert_id=concert['id']) }}">
+        <button class="button ghost" type="submit">Remove</button>
+      </form>
+    </div>
+    {% endfor %}
   {% else %}
-    <p>Your Selected Concerts list is empty.</p>
+    <div class="empty">Your Selected Concerts list is empty.</div>
   {% endif %}
 </div>
 {% endblock %}

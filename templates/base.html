@@ -4,25 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Music Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-  <header class="top-bar">
-    <div class="brand">🎵 Music Portal</div>
+<body class="bg-stage">
+  <div class="overlay"></div>
+  <header class="top-bar glass">
+    <div class="brand">
+      <span class="note">♪</span>
+      <span>Music Portal</span>
+    </div>
     <nav>
       {% if g.user %}
         {% if g.user['role'] == 'band' %}
-          <a href="{{ url_for('band_dashboard') }}">My Concerts</a>
-          <a href="{{ url_for('create_concert') }}">New Listing</a>
+          <a class="pill" href="{{ url_for('band_dashboard') }}">My Listings</a>
+          <a class="pill" href="{{ url_for('create_concert') }}">New Concert</a>
         {% else %}
-          <a href="{{ url_for('search_concerts') }}">Search</a>
-          <a href="{{ url_for('selected_concerts_view') }}">Selected Concerts</a>
+          <a class="pill" href="{{ url_for('search_concerts') }}">Discover</a>
+          <a class="pill" href="{{ url_for('selected_concerts_view') }}">Favorites</a>
         {% endif %}
-        <span class="user-pill">{{ g.user['username'] }} ({{ g.user['role'] }})</span>
-        <a href="{{ url_for('logout') }}">Logout</a>
+        <span class="user-pill">{{ g.user['username'] }} · {{ g.user['role'] }}</span>
+        <a class="pill ghost" href="{{ url_for('logout') }}">Logout</a>
       {% else %}
-        <a href="{{ url_for('login') }}">Login</a>
-        <a href="{{ url_for('register') }}">Register</a>
+        <a class="pill" href="{{ url_for('login') }}">Login</a>
+        <a class="pill ghost" href="{{ url_for('register') }}">Register</a>
       {% endif %}
     </nav>
   </header>

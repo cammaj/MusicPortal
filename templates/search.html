@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Find concerts</h2>
+<form method="get" class="card filter-grid">
+  <label>Band
+    <input type="text" name="band" value="{{ band_query }}" placeholder="Search by band name">
+  </label>
+  <label>Date
+    <input type="date" name="date" value="{{ date_query }}">
+  </label>
+  <label>Status
+    <select name="status">
+      <option value="">Any</option>
+      <option value="scheduled" {% if status_filter=='scheduled' %}selected{% endif %}>Scheduled</option>
+      <option value="cancelled" {% if status_filter=='cancelled' %}selected{% endif %}>Cancelled</option>
+      <option value="full" {% if status_filter=='full' %}selected{% endif %}>Fully booked</option>
+    </select>
+  </label>
+  <button type="submit" class="button">Search</button>
+</form>
+
+<div class="card">
+  {% if concerts %}
+    <table>
+      <thead>
+        <tr><th>Band</th><th>Date & Time</th><th>Venue</th><th>Cost</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for concert in concerts %}
+        <tr>
+          <td>{{ concert['band_name'] }}</td>
+          <td>{{ concert['concert_datetime'] }}</td>
+          <td>{{ concert['venue'] }}</td>
+          <td>{{ concert['cost'] }}</td>
+          <td class="status {{ concert['status'] }}">{{ concert['status'] }}</td>
+          <td>
+            {% if g.user and g.user['role'] == 'fan' %}
+              {% if concert['id'] in selected_ids %}
+                <form method="post" action="{{ url_for('remove_selected', concert_id=concert['id']) }}">
+                  <button class="button ghost" type="submit">Remove</button>
+                </form>
+              {% else %}
+                <form method="post" action="{{ url_for('add_selected', concert_id=concert['id']) }}">
+                  <button class="button" type="submit">Add</button>
+                </form>
+              {% endif %}
+            {% else %}
+              <a class="button ghost" href="{{ url_for('login') }}">Login to save</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No concerts found. Try adjusting your search.</p>
+  {% endif %}
+</div>
+{% endblock %}

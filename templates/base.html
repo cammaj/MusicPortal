@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Portal</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="top-bar">
+    <div class="brand">🎵 Music Portal</div>
+    <nav>
+      {% if g.user %}
+        {% if g.user['role'] == 'band' %}
+          <a href="{{ url_for('band_dashboard') }}">My Concerts</a>
+          <a href="{{ url_for('create_concert') }}">New Listing</a>
+        {% else %}
+          <a href="{{ url_for('search_concerts') }}">Search</a>
+          <a href="{{ url_for('selected_concerts_view') }}">Selected Concerts</a>
+        {% endif %}
+        <span class="user-pill">{{ g.user['username'] }} ({{ g.user['role'] }})</span>
+        <a href="{{ url_for('logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flash">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

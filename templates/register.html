@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Create your account</h2>
+<form method="post" class="card form-grid">
+  <label>Username
+    <input type="text" name="username" required>
+  </label>
+  <label>Password
+    <input type="password" name="password" required>
+  </label>
+  <label>Role
+    <select name="role" required>
+      <option value="">Select role</option>
+      <option value="band">Band</option>
+      <option value="fan">Fan</option>
+    </select>
+  </label>
+  <button type="submit" class="button">Register</button>
+</form>
+<p>Already registered? <a href="{{ url_for('login') }}">Login</a></p>
+{% endblock %}

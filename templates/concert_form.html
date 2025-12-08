@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ 'Edit Concert' if concert else 'New Concert' }}</h2>
+<form method="post" class="card form-grid">
+  <label>Band name
+    <input type="text" name="band_name" value="{{ concert['band_name'] if concert else '' }}" required>
+  </label>
+  <label>Date & time
+    <input type="datetime-local" name="concert_datetime" value="{{ concert['concert_datetime'] if concert else '' }}" required>
+  </label>
+  <label>Venue
+    <input type="text" name="venue" value="{{ concert['venue'] if concert else '' }}" required>
+  </label>
+  <label>Cost
+    <input type="text" name="cost" value="{{ concert['cost'] if concert else '' }}" required>
+  </label>
+  <label>Status
+    <select name="status">
+      <option value="scheduled" {% if concert and concert['status']=='scheduled' %}selected{% endif %}>Scheduled</option>
+      <option value="cancelled" {% if concert and concert['status']=='cancelled' %}selected{% endif %}>Cancelled</option>
+      <option value="full" {% if concert and concert['status']=='full' %}selected{% endif %}>Fully booked</option>
+    </select>
+  </label>
+  <button class="button" type="submit">Save</button>
+</form>
+{% endblock %}

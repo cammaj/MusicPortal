@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="split-header">
+  <h2>My Concert Listings</h2>
+  <a class="button" href="{{ url_for('create_concert') }}">Add Concert</a>
+</div>
+<div class="card">
+  {% if concerts %}
+    <table>
+      <thead>
+        <tr>
+          <th>Band</th><th>Date & Time</th><th>Venue</th><th>Cost</th><th>Status</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for concert in concerts %}
+          <tr>
+            <td>{{ concert['band_name'] }}</td>
+            <td>{{ concert['concert_datetime'] }}</td>
+            <td>{{ concert['venue'] }}</td>
+            <td>{{ concert['cost'] }}</td>
+            <td class="status {{ concert['status'] }}">{{ concert['status'] }}</td>
+            <td><a class="button ghost" href="{{ url_for('edit_concert', concert_id=concert['id']) }}">Edit</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No concerts yet. Create your first listing!</p>
+  {% endif %}
+</div>
+{% endblock %}

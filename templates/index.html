@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>Discover and share concerts</h1>
+    <p>Connect bands with fans and keep track of your favourite shows.</p>
+    <div class="cta">
+      <a class="button" href="{{ url_for('register') }}">Get Started</a>
+      <a class="button ghost" href="{{ url_for('search_concerts') }}">Browse Concerts</a>
+    </div>
+  </div>
+  <div class="hero-card">
+    <div class="avatar-grid">
+      <div class="avatar">🎤</div>
+      <div class="avatar">🎸</div>
+      <div class="avatar">🎧</div>
+      <div class="avatar">🥁</div>
+    </div>
+    <p>Create an account as a band to publish listings, or as a fan to curate your personal list.</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="section-header">
+  <div>
+    <p class="eyebrow">Band space</p>
+    <h2>My Concert Listings</h2>
+  </div>
+  <a class="button" href="{{ url_for('create_concert') }}">+ New Concert</a>
+</div>
+<div class="card-grid">
+  <div class="concert-card add-card">
+    <p>Dodaj nowe wydarzenie</p>
+    <a class="pill" href="{{ url_for('create_concert') }}">Create</a>
+  </div>
+  {% for concert in concerts %}
+  <div class="concert-card">
+    <div class="concert-meta">
+      <span class="pill">{{ concert['status'] }}</span>
+      <span class="pill soft">{{ concert['cost'] }}</span>
+    </div>
+    <h3>{{ concert['band_name'] }}</h3>
+    <p class="muted">{{ concert['venue'] }}</p>
+    <p class="date">{{ concert['concert_datetime'] }}</p>
+    <a class="button ghost" href="{{ url_for('edit_concert', concert_id=concert['id']) }}">Edit</a>
+  </div>
+  {% endfor %}
+</div>
+{% if not concerts %}
+  <div class="empty">Brak koncertów. Zacznij dodawać nowe listy!</div>
+{% endif %}
+{% endblock %}

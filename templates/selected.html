@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="section-header">
+  <div>
+    <p class="eyebrow">Ulubione</p>
+    <h2>Selected Concerts</h2>
+  </div>
+</div>
+<div class="card-grid">
+  {% if concerts %}
+    {% for concert in concerts %}
+    <div class="concert-card">
+      <div class="concert-meta">
+        <span class="pill">{{ concert['status'] }}</span>
+        <span class="pill soft">{{ concert['venue'] }}</span>
+      </div>
+      <h3>{{ concert['band_name'] }}</h3>
+      <p class="muted">{{ concert['concert_datetime'] }}</p>
+      <p class="muted">Cost: {{ concert['cost'] }}</p>
+      <form method="post" action="{{ url_for('remove_selected', concert_id=concert['id']) }}">
+        <button class="button ghost" type="submit">Remove</button>
+      </form>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty">Your Selected Concerts list is empty.</div>
+  {% endif %}
+</div>
+{% endblock %}

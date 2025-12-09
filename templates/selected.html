@@ -9,15 +9,21 @@
 <div class="card-grid">
   {% if concerts %}
     {% for concert in concerts %}
-    <div class="concert-card">
+    <div class="concert-card selected-card">
       <div class="concert-meta">
-        <span class="pill">{{ concert['status'] }}</span>
-        <span class="pill soft">{{ concert['venue'] }}</span>
+        <span class="pill soft status">{{ concert['status'] }}</span>
+        <span class="pill venue">{{ concert['venue'] }}</span>
       </div>
-      <h3>{{ concert['band_name'] }}</h3>
-      <p class="muted">{{ concert['concert_datetime'] }}</p>
-      <p class="muted">Cost: {{ concert['cost'] }}</p>
-      <form method="post" action="{{ url_for('remove_selected', concert_id=concert['id']) }}">
+      <div class="card-body">
+        <h3 class="band-name">{{ concert['band_name'] }}</h3>
+        <p class="muted date">{{ concert['concert_datetime'].replace('T',' ') }}</p>
+      </div>
+      <div class="card-footer">
+        <span class="ticket-tag">{{ concert['cost'] }}</span>
+        <span class="spacer"></span>
+        <span class="pill soft status-pill">{{ concert['status'] }}</span>
+      </div>
+      <form method="post" action="{{ url_for('remove_selected', concert_id=concert['id']) }}" class="card-actions">
         <button class="button ghost" type="submit">Remove</button>
       </form>
     </div>

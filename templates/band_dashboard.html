@@ -13,14 +13,22 @@
     <a class="pill" href="{{ url_for('create_concert') }}">Create</a>
   </div>
   {% for concert in concerts %}
-  <div class="concert-card">
+  <div class="concert-card {% if concert['image_filename'] %}has-image{% endif %}"
+       {% if concert['image_filename'] %}
+       style="background-image: linear-gradient(160deg, rgba(12,15,35,0.35), rgba(12,15,35,0.75)), url('{{ url_for('static', filename='uploads/' ~ concert['image_filename']) }}'); background-size: cover; background-position: center;"
+       {% endif %}>
     <div class="concert-meta">
       <span class="pill">{{ concert['status'] }}</span>
       <span class="pill soft">{{ concert['cost'] }}</span>
     </div>
     <h3>{{ concert['band_name'] }}</h3>
     <p class="muted">{{ concert['venue'] }}</p>
-    <p class="date">{{ concert['concert_datetime'] }}</p>
+    <p class="date">{{ concert['concert_datetime'].replace('T',' ') }}</p>
+    <div class="card-footer" style="display:grid; grid-template-columns:auto 1fr auto; align-items:end; gap:.5rem;">
+      <span class="pill soft">{{ concert['cost'] }}</span>
+      <span></span>
+      <span class="pill" style="text-transform:capitalize; justify-self:end;">{{ concert['status'] }}</span>
+    </div>
     <a class="button ghost" href="{{ url_for('edit_concert', concert_id=concert['id']) }}">Edit</a>
   </div>
   {% endfor %}

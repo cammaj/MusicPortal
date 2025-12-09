@@ -2,16 +2,20 @@
 {% block content %}
 <section class="discover-hero glass">
   <div class="location-row">
-    <div class="location-pill">
-      <span class="icon">📍</span>
-      <span>34 Westrow Drive , Barking</span>
-    </div>
+    <form method="get" class="location-panel" id="locationForm" action="{{ url_for('search_concerts') }}">
+      <button type="button" class="loc-btn" id="detectCityBtn" title="Detect location"><i class="fa-solid fa-location-crosshairs"></i></button>
+      <div class="loc-select" id="citySelect">
+        <input type="text" name="city" value="{{ city_query }}" placeholder="Enter city..." autocomplete="off">
+        <i class="fa-solid fa-chevron-down caret"></i>
+        <div class="loc-dropdown" id="cityDropdown">
+          {% for nm in ['London','Manchester','Birmingham','Liverpool','Leeds','Bristol','Glasgow','Edinburgh','Cardiff','Belfast'] %}
+          <div class="loc-option" data-val="{{ nm }}">{{ nm }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </form>
     <div class="hero-actions">
-      <span class="badge-soft">Nearing...</span>
-      <span class="badge-soft">View all..</span>
-      {% if not g.user %}
-      <a class="pill ghost" href="{{ url_for('login') }}">Login</a>
-      {% endif %}
+      <a class="pill ghost" href="{{ url_for('search_concerts') }}" title="Show all">View all</a>
     </div>
   </div>
   <form method="get" class="search-row">
@@ -36,6 +40,68 @@
   </form>
 </section>
 
+<script>
+  (function(){
+    const form = document.getElementById('locationForm');
+    const btn = document.getElementById('detectCityBtn');
+    const select = document.getElementById('citySelect');
+    const input = select.querySelector('input[name="city"]');
+    const dd = document.getElementById('cityDropdown');
+
+    // Custom dropdown open/close + selection
+    select.addEventListener('click', (e)=>{
+      dd.classList.toggle('open');
+    });
+    dd.addEventListener('click', (e)=>{
+      const opt = e.target.closest('.loc-option');
+      if(opt){
+        input.value = opt.dataset.val;
+        dd.classList.remove('open');
+        input.blur();
+        form.submit();
+      }
+    });
+    document.addEventListener('click', (e)=>{
+      if(!select.contains(e.target)) dd.classList.remove('open');
+    });
+
+    // Submit on Enter in input
+    input.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter') { e.preventDefault(); dd.classList.remove('open'); form.submit(); }
+    });
+
+    // Ask permission explicitly and detect city
+    async function detectCity(){
+      if(!('geolocation' in navigator)) { alert('Geolocation not available'); return; }
+      try {
+        const pos = await new Promise((res, rej)=> navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 8000 }));
+        const { latitude, longitude } = pos.coords;
+        const cities = [
+          {name:'London',lat:51.5074,lng:-0.1278},
+          {name:'Manchester',lat:53.4808,lng:-2.2426},
+          {name:'Birmingham',lat:52.4862,lng:-1.8904},
+          {name:'Liverpool',lat:53.4084,lng:-2.9916},
+          {name:'Leeds',lat:53.8008,lng:-1.5491},
+          {name:'Bristol',lat:51.4545,lng:-2.5879},
+          {name:'Glasgow',lat:55.8642,lng:-4.2518},
+          {name:'Edinburgh',lat:55.9533,lng:-3.1883},
+          {name:'Cardiff',lat:51.4816,lng:-3.1791},
+          {name:'Belfast',lat:54.5973,lng:-5.9301}
+        ];
+        function dist(a,b){ const dx=a.lat-b.lat, dy=a.lng-b.lng; return dx*dx+dy*dy; }
+        let best=cities[0], bestd=Infinity;
+        for(const c of cities){ const d = dist({lat:latitude,lng:longitude}, c); if(d<bestd){ best=c; bestd=d; } }
+        input.value = best.name;
+        form.submit();
+      } catch(e){
+        // Common cause: page not served over HTTPS / insecure origin
+        alert('Unable to detect location. Please select from the list.');
+      }
+    }
+    btn && btn.addEventListener('click', detectCity);
+  })();
+</script>
+
 <section class="spotlight">
   <div class="spotlight-header">
     <p class="eyebrow">Discover concerts</p>
@@ -44,27 +110,33 @@
   {% if concerts %}
   <div class="spotlight-track">
     {% for concert in concerts %}
-    <div class="spotlight-card gradient-{{ loop.index0 % 6 }}">
-      <div class="card-top">
-        <div class="pill soft">{{ concert['venue'] }}</div>
+    <div class="spotlight-card {% if concert['image_filename'] %}with-bg{% else %}gradient-{{ loop.index0 % 6 }}{% endif %}"
+         {% if concert['image_filename'] %}
+         style="background-image: linear-gradient(160deg, rgba(12,15,35,0.25), rgba(12,15,35,0.75)), url('{{ url_for('static', filename='uploads/' ~ concert['image_filename']) }}'); background-size: cover; background-position: center;"
+         {% endif %}>
+      <div class="card-top" style="display:grid; grid-template-columns:1fr auto; align-items:center; gap:.5rem;">
+        <div class="pill soft" style="justify-self:start;">{{ concert['venue'] }}</div>
         {% if g.user and g.user['role'] == 'fan' %}
           {% if concert['id'] in selected_ids %}
           <form method="post" action="{{ url_for('remove_selected', concert_id=concert['id']) }}">
-            <button class="fav-btn active" type="submit" title="Remove from favorites">♥</button>
+            <button class="fav-btn active" type="submit" title="Remove from favorites" style="justify-self:end;">♥</button>
           </form>
           {% else %}
           <form method="post" action="{{ url_for('add_selected', concert_id=concert['id']) }}">
-            <button class="fav-btn" type="submit" title="Add to favorites">♡</button>
+            <button class="fav-btn" type="submit" title="Add to favorites" style="justify-self:end;">♡</button>
           </form>
           {% endif %}
         {% endif %}
       </div>
       <div class="card-body">
         <p class="band-name">{{ concert['band_name'] }}</p>
-        <p class="muted">{{ concert['concert_datetime'] }}</p>
-        <span class="ticket-tag">{{ concert['cost'] }}</span>
+        <p class="muted">{{ concert['concert_datetime'].replace('T',' ') }}</p>
       </div>
-      <div class="status-flag {{ concert['status'] }}">{{ concert['status'] }}</div>
+      <div class="card-bottom" style="display:grid; grid-template-columns:auto 1fr auto; align-items:end; gap:.5rem;">
+        <span class="ticket-tag">{{ concert['cost'] }}</span>
+        <span></span>
+        <div class="status-flag {{ concert['status'] }}">{{ concert['status'] }}</div>
+      </div>
     </div>
     {% endfor %}
   </div>
@@ -78,17 +150,47 @@
     <div class="dot"></div>
     <span>See famous artists..</span>
   </div>
-  <div class="avatar-strip">
-    {% for concert in concerts[:6] %}
-    <div class="avatar-badge">
-      <span>{{ concert['band_name'][:1] }}</span>
+  <div class="avatar-carousel">
+    <button class="avatar-nav prev" type="button" aria-label="Scroll left">◀</button>
+    <div class="avatar-track" id="avatarTrack">
+      {% for name in bands %}
+      <a class="avatar-link" href="{{ url_for('artist_concerts', username=name) }}" title="{{ name }}">
+        <div class="avatar-badge">
+          <span>{{ name[:1] }}</span>
+        </div>
+      </a>
+      {% endfor %}
+      {% if bands|length == 0 %}
+      <div class="avatar-badge">🎵</div>
+      <div class="avatar-badge">🎸</div>
+      <div class="avatar-badge">🎤</div>
+      {% endif %}
     </div>
-    {% endfor %}
-    {% if concerts|length == 0 %}
-    <div class="avatar-badge">🎵</div>
-    <div class="avatar-badge">🎸</div>
-    <div class="avatar-badge">🎤</div>
-    {% endif %}
+    <button class="avatar-nav next" type="button" aria-label="Scroll right">▶</button>
   </div>
+  <script>
+    (function(){
+      const track = document.getElementById('avatarTrack');
+      if(!track) return;
+      const prev = document.querySelector('.avatar-nav.prev');
+      const next = document.querySelector('.avatar-nav.next');
+      const item = () => track.querySelector('.avatar-badge');
+      const getGap = () => {
+        const s = getComputedStyle(track);
+        const g = parseFloat(s.columnGap || s.gap || '0');
+        return isNaN(g) ? 0 : g;
+      };
+      const pageSize = () => (window.innerWidth >= 900 ? 6 : 4);
+      const amount = () => {
+        const el = item();
+        if(!el) return 240;
+        const rect = el.getBoundingClientRect();
+        return Math.round((rect.width + getGap()) * pageSize());
+      };
+      const bump = () => { track.classList.add('bump'); track.addEventListener('animationend', ()=> track.classList.remove('bump'), {once:true}); };
+      prev && prev.addEventListener('click', ()=> { track.scrollBy({left: -amount(), behavior: 'smooth'}); bump(); });
+      next && next.addEventListener('click', ()=> { track.scrollBy({left: amount(), behavior: 'smooth'}); bump(); });
+    })();
+  </script>
 </section>
 {% endblock %}

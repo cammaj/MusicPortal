@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="auth-hero">
+  <div class="auth-panel glass">
+    <p class="eyebrow">Logowanie</p>
+    <h2>Wróć na scenę</h2>
+    <form method="post" class="form-grid">
+      <label>Username
+        <input type="text" name="username" required placeholder="Twoja nazwa">
+      </label>
+      <label>Password
+        <input type="password" name="password" required placeholder="Hasło">
+      </label>
+      <button type="submit" class="button wide">Login</button>
+    </form>
+    <div class="social-row">
+      <span class="pill">Facebook</span>
+      <span class="pill">Google</span>
+      <span class="pill">Apple</span>
+    </div>
+    <p class="muted">Nie masz konta? <a href="{{ url_for('register') }}">Zarejestruj się</a></p>
+  </div>
+</section>
+{% endblock %}

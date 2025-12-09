@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="discover-hero glass">
+  <div class="location-row">
+    <div class="location-pill">
+      <span class="icon">📍</span>
+      <span>34 Westrow Drive , Barking</span>
+    </div>
+    <div class="hero-actions">
+      <span class="badge-soft">Nearing...</span>
+      <span class="badge-soft">View all..</span>
+      {% if not g.user %}
+      <a class="pill ghost" href="{{ url_for('login') }}">Login</a>
+      {% endif %}
+    </div>
+  </div>
+  <form method="get" class="search-row">
+    <div class="search-input">
+      <span class="icon">🔎</span>
+      <input type="text" name="band" value="{{ band_query }}" placeholder="Search here.....">
+    </div>
+    <div class="search-input narrow">
+      <span class="icon">📅</span>
+      <input type="date" name="date" value="{{ date_query }}">
+    </div>
+    <div class="search-input narrow">
+      <span class="icon">🎟️</span>
+      <select name="status">
+        <option value="">Any</option>
+        <option value="scheduled" {% if status_filter=='scheduled' %}selected{% endif %}>Scheduled</option>
+        <option value="cancelled" {% if status_filter=='cancelled' %}selected{% endif %}>Cancelled</option>
+        <option value="full" {% if status_filter=='full' %}selected{% endif %}>Fully booked</option>
+      </select>
+    </div>
+    <button class="button" type="submit">Search</button>
+  </form>
+</section>
+
+<section class="spotlight">
+  <div class="spotlight-header">
+    <p class="eyebrow">Discover concerts</p>
+    <h2>Pick your next show</h2>
+  </div>
+  {% if concerts %}
+  <div class="spotlight-track">
+    {% for concert in concerts %}
+    <div class="spotlight-card gradient-{{ loop.index0 % 6 }}">
+      <div class="card-top">
+        <div class="pill soft">{{ concert['venue'] }}</div>
+        {% if g.user and g.user['role'] == 'fan' %}
+          {% if concert['id'] in selected_ids %}
+          <form method="post" action="{{ url_for('remove_selected', concert_id=concert['id']) }}">
+            <button class="fav-btn active" type="submit" title="Remove from favorites">♥</button>
+          </form>
+          {% else %}
+          <form method="post" action="{{ url_for('add_selected', concert_id=concert['id']) }}">
+            <button class="fav-btn" type="submit" title="Add to favorites">♡</button>
+          </form>
+          {% endif %}
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <p class="band-name">{{ concert['band_name'] }}</p>
+        <p class="muted">{{ concert['concert_datetime'] }}</p>
+        <span class="ticket-tag">{{ concert['cost'] }}</span>
+      </div>
+      <div class="status-flag {{ concert['status'] }}">{{ concert['status'] }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="empty">No concerts found. Try adjusting your search.</div>
+  {% endif %}
+</section>
+
+<section class="famous">
+  <div class="famous-header">
+    <div class="dot"></div>
+    <span>See famous artists..</span>
+  </div>
+  <div class="avatar-strip">
+    {% for concert in concerts[:6] %}
+    <div class="avatar-badge">
+      <span>{{ concert['band_name'][:1] }}</span>
+    </div>
+    {% endfor %}
+    {% if concerts|length == 0 %}
+    <div class="avatar-badge">🎵</div>
+    <div class="avatar-badge">🎸</div>
+    <div class="avatar-badge">🎤</div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

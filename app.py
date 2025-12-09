@@ -92,11 +92,9 @@ def load_logged_in_user():
 
 @app.route("/")
 def index():
-    if g.user is None:
-        return render_template("index.html")
-    if g.user["role"] == "band":
+    if g.user is not None and g.user["role"] == "band":
         return redirect(url_for("band_dashboard"))
-    return redirect(url_for("search_concerts"))
+    return render_discover()
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -165,6 +163,57 @@ def fan_required():
         flash("Fan access required.")
         return False
     return True
+
+
+def fetch_concerts(band_query: str, date_query: Optional[str], status_filter: str):
+    db = get_db()
+    query = (
+        "SELECT concerts.*, users.username FROM concerts "
+        "JOIN users ON concerts.user_id = users.id WHERE 1=1"
+    )
+    params = []
+    if band_query:
+        query += " AND band_name LIKE ?"
+        params.append(f"%{band_query}%")
+    if date_query:
+        try:
+            datetime.strptime(date_query, "%Y-%m-%d")
+            query += " AND date(concert_datetime) = date(?)"
+            params.append(date_query)
+        except ValueError:
+            flash("Invalid date format. Use YYYY-MM-DD.")
+    if status_filter in {"scheduled", "cancelled", "full"}:
+        query += " AND status = ?"
+        params.append(status_filter)
+    query += " ORDER BY concert_datetime"
+    return get_db().execute(query, params).fetchall()
+
+
+def selected_ids_for_user(user_id: int):
+    db = get_db()
+    selected = db.execute(
+        "SELECT concert_id FROM selected_concerts WHERE user_id = ?",
+        (user_id,),
+    ).fetchall()
+    return {row["concert_id"] for row in selected}
+
+
+def render_discover():
+    band_query = request.args.get("band", "").strip()
+    date_query = request.args.get("date")
+    status_filter = request.args.get("status", "")
+    concerts = fetch_concerts(band_query, date_query, status_filter)
+    selected_ids = set()
+    if g.user is not None and g.user["role"] == "fan":
+        selected_ids = selected_ids_for_user(g.user["id"])
+    return render_template(
+        "search.html",
+        concerts=concerts,
+        band_query=band_query,
+        date_query=date_query,
+        status_filter=status_filter,
+        selected_ids=selected_ids,
+    )
 
 
 @app.route("/band")
@@ -239,42 +288,9 @@ def edit_concert(concert_id: int):
 
 @app.route("/concerts")
 def search_concerts():
-    db = get_db()
-    band_query = request.args.get("band", "").strip()
-    date_query = request.args.get("date")
-    status_filter = request.args.get("status", "")
-    query = "SELECT concerts.*, users.username FROM concerts JOIN users ON concerts.user_id = users.id WHERE 1=1"
-    params = []
-    if band_query:
-        query += " AND band_name LIKE ?"
-        params.append(f"%{band_query}%")
-    if date_query:
-        try:
-            datetime.strptime(date_query, "%Y-%m-%d")
-            query += " AND date(concert_datetime) = date(?)"
-            params.append(date_query)
-        except ValueError:
-            flash("Invalid date format. Use YYYY-MM-DD.")
-    if status_filter in {"scheduled", "cancelled", "full"}:
-        query += " AND status = ?"
-        params.append(status_filter)
-    query += " ORDER BY concert_datetime"
-    concerts = db.execute(query, params).fetchall()
-    selected_ids = set()
-    if g.user is not None and g.user["role"] == "fan":
-        selected = db.execute(
-            "SELECT concert_id FROM selected_concerts WHERE user_id = ?",
-            (g.user["id"],),
-        ).fetchall()
-        selected_ids = {row["concert_id"] for row in selected}
-    return render_template(
-        "search.html",
-        concerts=concerts,
-        band_query=band_query,
-        date_query=date_query,
-        status_filter=status_filter,
-        selected_ids=selected_ids,
-    )
+    if g.user is not None and g.user["role"] == "band":
+        return redirect(url_for("band_dashboard"))
+    return render_discover()
 
 
 @app.route("/selected")

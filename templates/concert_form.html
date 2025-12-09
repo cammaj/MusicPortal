@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="section-header">
+  <div>
+    <p class="eyebrow">Concert form</p>
+    <h2>{{ 'Edit Concert' if concert else 'Create Concert' }}</h2>
+  </div>
+  <a class="pill" href="{{ url_for('band_dashboard') }}">Back</a>
+</div>
+<form method="post" enctype="multipart/form-data" class="glass form-card">
+  <div class="form-grid">
+    <label>Band name
+      <input type="text" name="band_name" value="{{ concert['band_name'] if concert else '' }}" required>
+    </label>
+    <label>Date & time
+      <input type="datetime-local" name="concert_datetime" value="{{ concert['concert_datetime'] if concert else '' }}" required>
+    </label>
+    <label>Venue
+      <input type="text" name="venue" value="{{ concert['venue'] if concert else '' }}" required>
+    </label>
+    <label>City
+      <input type="text" name="city" value="{{ concert['city'] if concert else '' }}" list="cities-list" placeholder="e.g., London" required>
+      <datalist id="cities-list">
+        <option value="London"></option>
+        <option value="Manchester"></option>
+        <option value="Birmingham"></option>
+        <option value="Liverpool"></option>
+        <option value="Leeds"></option>
+        <option value="Bristol"></option>
+        <option value="Glasgow"></option>
+        <option value="Edinburgh"></option>
+        <option value="Cardiff"></option>
+        <option value="Belfast"></option>
+      </datalist>
+    </label>
+    <label>Cost
+      <input type="text" name="cost" value="{{ concert['cost'] if concert else '' }}" required>
+    </label>
+    <label>Status
+      <select name="status">
+        <option value="scheduled" {% if concert and concert['status']=='scheduled' %}selected{% endif %}>Scheduled</option>
+        <option value="cancelled" {% if concert and concert['status']=='cancelled' %}selected{% endif %}>Cancelled</option>
+        <option value="full" {% if concert and concert['status']=='full' %}selected{% endif %}>Fully booked</option>
+      </select>
+    </label>
+    <label>Background image
+      <input type="file" name="image" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp">
+    </label>
+  </div>
+  {% if concert and concert['image_filename'] %}
+  <div class="muted small" style="margin: .5rem 0 1rem;">
+    Current image:
+    <img src="{{ url_for('static', filename='uploads/' ~ concert['image_filename']) }}" alt="Current image" style="max-width: 240px; border-radius: 12px; display:block; margin-top:.4rem;">
+  </div>
+  {% endif %}
+  <button class="button" type="submit">Save</button>
+</form>
+{% endblock %}

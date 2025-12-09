@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="section-header">
+  <div>
+    <p class="eyebrow">Artist</p>
+    <h2>{{ artist['username'] }} — All Concerts</h2>
+  </div>
+  <a class="pill" href="{{ url_for('search_concerts') }}">Back to Discover</a>
+</div>
+
+<div class="card-grid">
+  {% for concert in concerts %}
+  <div class="concert-card {% if concert['image_filename'] %}has-image{% endif %} {% if concert['archived'] %}archived{% endif %}"
+       {% if concert['image_filename'] %}
+       style="background-image: linear-gradient(160deg, rgba(12,15,35,0.35), rgba(12,15,35,0.75)), url('{{ url_for('static', filename='uploads/' ~ concert['image_filename']) }}'); background-size: cover; background-position: center;"
+       {% endif %}>
+    <div class="concert-meta">
+      <span class="pill">{{ concert['status'] }}</span>
+      <span class="pill soft">{{ concert['cost'] }}</span>
+    </div>
+    <h3>{{ concert['band_name'] }}</h3>
+    <p class="muted">{{ concert['venue'] }}</p>
+    <p class="date">{{ concert['concert_datetime'] }}</p>
+  </div>
+  {% endfor %}
+</div>
+{% if not concerts %}
+  <div class="empty">No concerts yet for this artist.</div>
+{% endif %}
+{% endblock %}

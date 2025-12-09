@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="section-header">
+  <div>
+    <p class="eyebrow">Administration Panel</p>
+    <h2>Manage Users & Concerts</h2>
+  </div>
+</div>
+
+<section class="glass" style="padding:1rem 1.25rem; margin-bottom:1rem;">
+  <form method="get" style="display:grid; grid-template-columns: 1fr 1fr auto; gap:.6rem; align-items:center;">
+    <label>
+      <span class="muted small">Search user by name</span>
+      <input type="text" name="u" value="{{ q_user }}" placeholder="Type username..." />
+    </label>
+    <label>
+      <span class="muted small">Search by band/listing</span>
+      <input type="text" name="b" value="{{ q_band }}" placeholder="Type band name..." />
+    </label>
+    <button class="button" type="submit">Search</button>
+  </form>
+</section>
+
+<section class="glass" style="padding:1rem 1.25rem;">
+  <div class="section-header" style="margin:.5rem 0 1rem;">
+    <div>
+      <p class="eyebrow">Results (U)</p>
+      <h3>Users</h3>
+    </div>
+  </div>
+  <div class="card-grid">
+    {% for u in users %}
+    <div class="mini-card" style="display:grid; gap:.4rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong>{{ u['username'] }}</strong>
+        <span class="pill soft">{{ u['role'] }}</span>
+      </div>
+      {% if u['role'] != 'admin' %}
+      <form method="post" action="{{ url_for('admin_delete_user', user_id=u['id']) }}">
+        <button class="button ghost" type="submit">Delete</button>
+      </form>
+      {% else %}
+      <span class="muted small">Protected account</span>
+      {% endif %}
+    </div>
+    {% endfor %}
+    {% if users|length == 0 %}
+    <div class="empty">No users match your query.</div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="glass" style="padding:1rem 1.25rem; margin-top:1rem;">
+  <div class="section-header" style="margin:.5rem 0 1rem;">
+    <div>
+      <p class="eyebrow">Results (C)</p>
+      <h3>Concerts</h3>
+    </div>
+  </div>
+  <div class="card-grid">
+    {% for c in concerts %}
+    <div class="concert-card">
+      <div class="concert-meta">
+        <span class="pill">{{ c['status'] }}</span>
+        <span class="pill soft">{{ c['venue'] }}</span>
+      </div>
+      <div class="card-body">
+        <h3>{{ c['band_name'] }}</h3>
+        <p class="muted">By: {{ c['username'] }}</p>
+        <p class="date">{{ c['concert_datetime'].replace('T',' ') }}</p>
+      </div>
+      <div class="card-footer" style="display:grid; grid-template-columns:auto 1fr auto; align-items:end; gap:.5rem;">
+        <span class="ticket-tag">{{ c['cost'] }}</span>
+        <span></span>
+        <form method="post" action="{{ url_for('admin_update_status', concert_id=c['id']) }}" style="display:flex; gap:.4rem; align-items:center;">
+          <select name="status">
+            <option value="scheduled" {% if c['status']=='scheduled' %}selected{% endif %}>Scheduled</option>
+            <option value="cancelled" {% if c['status']=='cancelled' %}selected{% endif %}>Cancelled</option>
+            <option value="full" {% if c['status']=='full' %}selected{% endif %}>Full</option>
+          </select>
+          <button class="button ghost" type="submit">Update</button>
+        </form>
+      </div>
+      <form method="post" action="{{ url_for('admin_delete_concert', concert_id=c['id']) }}" class="card-actions">
+        <button class="button ghost" type="submit">Delete</button>
+      </form>
+    </div>
+    {% endfor %}
+    {% if concerts|length == 0 %}
+    <div class="empty">No concerts match your query.</div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

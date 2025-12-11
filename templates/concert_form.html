@@ -5,7 +5,7 @@
     <p class="eyebrow">Concert form</p>
     <h2>{{ 'Edit Concert' if concert else 'Create Concert' }}</h2>
   </div>
-  <a class="pill" href="{{ url_for('band_dashboard') }}">Back</a>
+  <a class="pill" href="{{ url_for('admin_concerts') if g.user['role'] == 'admin' else url_for('band_dashboard') }}">Back</a>
 </div>
 <form method="post" enctype="multipart/form-data" class="glass form-card">
   <div class="form-grid">
@@ -40,7 +40,6 @@
       <select name="status">
         <option value="scheduled" {% if concert and concert['status']=='scheduled' %}selected{% endif %}>Scheduled</option>
         <option value="cancelled" {% if concert and concert['status']=='cancelled' %}selected{% endif %}>Cancelled</option>
-        <option value="full" {% if concert and concert['status']=='full' %}selected{% endif %}>Fully booked</option>
       </select>
     </label>
     <label>Background image

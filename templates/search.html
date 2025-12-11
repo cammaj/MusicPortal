@@ -1,48 +1,57 @@
 {% extends 'base.html' %}
 {% block content %}
-<section class="discover-hero glass">
-  <div class="location-row">
-    <form method="get" class="location-panel" id="locationForm" action="{{ url_for('search_concerts') }}">
-      <button type="button" class="loc-btn" id="detectCityBtn" title="Detect location"><i class="fa-solid fa-location-crosshairs"></i></button>
-      <div class="loc-select" id="citySelect">
-        <input type="text" name="city" value="{{ city_query }}" placeholder="Enter city..." autocomplete="off">
-        <i class="fa-solid fa-chevron-down caret"></i>
+<section class="discover-hero glass compact-hero">
+  <form method="get" action="{{ url_for('search_concerts') }}" class="search-bar-container" id="searchForm">
+    
+    <!-- Location -->
+    <div class="search-segment location-segment">
+      <button type="button" class="detect-btn" id="detectCityBtn" title="Detect location">
+        <i class="fa-solid fa-location-crosshairs"></i>
+      </button>
+      <div class="city-wrapper" id="citySelect">
+        <input type="text" name="city" value="{{ city_query }}" placeholder="City..." autocomplete="off">
         <div class="loc-dropdown" id="cityDropdown">
           {% for nm in ['London','Manchester','Birmingham','Liverpool','Leeds','Bristol','Glasgow','Edinburgh','Cardiff','Belfast'] %}
           <div class="loc-option" data-val="{{ nm }}">{{ nm }}</div>
           {% endfor %}
         </div>
       </div>
-    </form>
-    <div class="hero-actions">
-      <a class="pill ghost" href="{{ url_for('search_concerts') }}" title="Show all">View all</a>
     </div>
-  </div>
-  <form method="get" class="search-row">
-    <div class="search-input">
-      <span class="icon">🔎</span>
-      <input type="text" name="band" value="{{ band_query }}" placeholder="Search here.....">
+
+    <div class="segment-divider"></div>
+
+    <!-- Keywords -->
+    <div class="search-segment keyword-segment">
+      <i class="fas fa-search field-icon"></i>
+      <input type="text" name="band" value="{{ band_query }}" placeholder="Search artist...">
     </div>
-    <div class="search-input narrow">
-      <span class="icon">📅</span>
+
+    <div class="segment-divider"></div>
+
+    <!-- Date -->
+    <div class="search-segment date-segment">
       <input type="date" name="date" value="{{ date_query }}">
     </div>
-    <div class="search-input narrow">
-      <span class="icon">🎟️</span>
+
+    <div class="segment-divider"></div>
+
+    <!-- Status -->
+    <div class="search-segment status-segment">
       <select name="status">
-        <option value="">Any</option>
+        <option value="">Any Status</option>
         <option value="scheduled" {% if status_filter=='scheduled' %}selected{% endif %}>Scheduled</option>
         <option value="cancelled" {% if status_filter=='cancelled' %}selected{% endif %}>Cancelled</option>
-        <option value="full" {% if status_filter=='full' %}selected{% endif %}>Fully booked</option>
+        <option value="full" {% if status_filter=='full' %}selected{% endif %}>Sold Out</option>
       </select>
     </div>
-    <button class="button" type="submit">Search</button>
+
+    <button class="button search-btn" type="submit">Search</button>
   </form>
 </section>
 
 <script>
   (function(){
-    const form = document.getElementById('locationForm');
+    const form = document.getElementById('searchForm');
     const btn = document.getElementById('detectCityBtn');
     const select = document.getElementById('citySelect');
     const input = select.querySelector('input[name="city"]');
@@ -58,7 +67,7 @@
         input.value = opt.dataset.val;
         dd.classList.remove('open');
         input.blur();
-        form.submit();
+        // form.submit(); // Let user search manually
       }
     });
     document.addEventListener('click', (e)=>{
@@ -92,7 +101,7 @@
         let best=cities[0], bestd=Infinity;
         for(const c of cities){ const d = dist({lat:latitude,lng:longitude}, c); if(d<bestd){ best=c; bestd=d; } }
         input.value = best.name;
-        form.submit();
+        // form.submit();
       } catch(e){
         // Common cause: page not served over HTTPS / insecure origin
         alert('Unable to detect location. Please select from the list.');
@@ -112,17 +121,20 @@
     {% for concert in concerts %}
     <div class="spotlight-card {% if concert['image_filename'] %}with-bg{% else %}gradient-{{ loop.index0 % 6 }}{% endif %}"
          {% if concert['image_filename'] %}
-         style="background-image: linear-gradient(160deg, rgba(12,15,35,0.25), rgba(12,15,35,0.75)), url('{{ url_for('static', filename='uploads/' ~ concert['image_filename']) }}'); background-size: cover; background-position: center;"
-         {% endif %}>
+         style="background-image: linear-gradient(160deg, rgba(12,15,35,0.25), rgba(12,15,35,0.75)), url('{{ url_for('static', filename='uploads/' ~ concert['image_filename']) }}'); background-size: cover; background-position: center; cursor: pointer;"
+         {% else %}
+         style="cursor: pointer;"
+         {% endif %}
+         onclick="location.href='{{ url_for('view_concert', concert_id=concert['id']) }}';">
       <div class="card-top" style="display:grid; grid-template-columns:1fr auto; align-items:center; gap:.5rem;">
         <div class="pill soft" style="justify-self:start;">{{ concert['venue'] }}</div>
         {% if g.user and g.user['role'] == 'fan' %}
           {% if concert['id'] in selected_ids %}
-          <form method="post" action="{{ url_for('remove_selected', concert_id=concert['id']) }}">
+          <form method="post" action="{{ url_for('remove_selected', concert_id=concert['id']) }}" onclick="event.stopPropagation();">
             <button class="fav-btn active" type="submit" title="Remove from favorites" style="justify-self:end;">♥</button>
           </form>
           {% else %}
-          <form method="post" action="{{ url_for('add_selected', concert_id=concert['id']) }}">
+          <form method="post" action="{{ url_for('add_selected', concert_id=concert['id']) }}" onclick="event.stopPropagation();">
             <button class="fav-btn" type="submit" title="Add to favorites" style="justify-self:end;">♡</button>
           </form>
           {% endif %}
@@ -153,10 +165,10 @@
   <div class="avatar-carousel">
     <button class="avatar-nav prev" type="button" aria-label="Scroll left">◀</button>
     <div class="avatar-track" id="avatarTrack">
-      {% for name in bands %}
-      <a class="avatar-link" href="{{ url_for('artist_concerts', username=name) }}" title="{{ name }}">
-        <div class="avatar-badge">
-          <span>{{ name[:1] }}</span>
+      {% for band in bands %}
+      <a class="avatar-link" href="{{ url_for('artist_concerts', username=band['username']) }}" title="{{ band['username'] }}">
+        <div class="avatar-badge" {% if band['profile_image'] %}style="background-image: url('{{ url_for('static', filename='uploads/' ~ band['profile_image']) }}'); background-size: cover; background-position: center; color: transparent;"{% endif %}>
+          <span>{{ band['username'][:1] }}</span>
         </div>
       </a>
       {% endfor %}

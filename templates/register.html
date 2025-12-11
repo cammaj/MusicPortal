@@ -2,25 +2,28 @@
 {% block content %}
 <section class="auth-hero">
   <div class="auth-panel glass">
-    <p class="eyebrow">Nowe konto</p>
-    <h2>Dołącz jako zespół lub fan</h2>
+    <p class="eyebrow">New Account</p>
+    <h2>Join as a band or fan</h2>
     <form method="post" class="form-grid">
       <label>Username
-        <input type="text" name="username" required placeholder="Twoja nazwa">
+        <input type="text" name="username" required placeholder="Your username">
+      </label>
+      <label>Email
+        <input type="email" name="email" placeholder="your@email.com">
       </label>
       <label>Password
-        <input type="password" name="password" required placeholder="Hasło">
+        <input type="password" name="password" required placeholder="Password">
       </label>
-      <label>Rola
+      <label>Role
         <select name="role" required>
-          <option value="">Wybierz</option>
+          <option value="">Select</option>
           <option value="band">Band</option>
           <option value="fan">Fan</option>
         </select>
       </label>
-      <button type="submit" class="button wide">Załóż konto</button>
+      <button type="submit" class="button wide">Create Account</button>
     </form>
-    <p class="muted">Masz już konto? <a href="{{ url_for('login') }}">Zaloguj się</a></p>
+    <p class="muted">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
   </div>
 </section>
 {% endblock %}

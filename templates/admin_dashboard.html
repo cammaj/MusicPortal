@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-dashboard-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh;">
+    <div class="admin-header" style="text-align: center; margin-bottom: 3rem;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: #e0e6ed;">Welcome {{ g.user['username'] }}</h1>
+    </div>
+
+    <div class="admin-choices" style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
+        <a href="{{ url_for('admin_users') }}" class="admin-choice-card">
+            <div class="choice-icon">
+                <i class="far fa-user"></i>
+            </div>
+            <div class="choice-text">
+                <h3>Accounts</h3>
+                <p>Manage users' accounts</p>
+            </div>
+        </a>
+
+        <a href="{{ url_for('admin_concerts') }}" class="admin-choice-card">
+            <div class="choice-icon">
+                <i class="fas fa-microphone-alt"></i>
+            </div>
+            <div class="choice-text">
+                <h3>Listings</h3>
+                <p>Manage existing concerts</p>
+            </div>
+        </a>
+    </div>
+</div>
+
+<style>
+    .admin-choice-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 280px;
+        height: 280px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-decoration: none;
+        color: var(--text);
+        transition: transform 0.3s ease, background 0.3s ease;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .admin-choice-card:hover {
+        transform: translateY(-10px);
+        background: rgba(255, 255, 255, 0.15);
+        color: var(--text);
+    }
+
+    .choice-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.9);
+        color: #333;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .choice-text h3 {
+        font-size: 1.5rem;
+        margin: 0 0 0.5rem 0;
+        font-weight: 600;
+    }
+
+    .choice-text p {
+        font-size: 0.9rem;
+        margin: 0;
+        color: var(--muted);
+        font-style: italic;
+    }
+</style>
+{% endblock %}

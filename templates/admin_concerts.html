@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-panel-container">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Administration Panel</p>
+            <h2>Manage Listings</h2>
+        </div>
+        <a href="{{ url_for('admin_dashboard') }}" class="pill ghost">← Back</a>
+    </div>
+
+    <div class="search-bar-container" style="margin-bottom: 2rem; display: flex; justify-content: center;">
+        <form action="{{ url_for('admin_concerts') }}" method="get" style="width: 100%; max-width: 600px; position: relative;">
+            <i class="fas fa-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--muted);"></i>
+            <input type="text" name="q" value="{{ q }}" placeholder="Search by name, band, location, date..." 
+                   style="width: 100%; padding: 0.8rem 1rem 0.8rem 2.5rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 1rem;">
+        </form>
+    </div>
+
+    <p style="color: var(--muted); font-style: italic; margin-bottom: 1rem;">Results ({{ concerts|length }}):</p>
+
+    <div class="concert-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+        {% for concert in concerts %}
+        <div class="concert-card {% if concert['image_filename'] %}with-bg{% endif %}"
+             style="position: relative; border-radius: 16px; overflow: hidden; height: 320px; display: flex; flex-direction: column; justify-content: flex-end; padding: 1.5rem; {% if concert['image_filename'] %}background-image: linear-gradient(180deg, rgba(12,15,35,0) 0%, rgba(12,15,35,0.9) 100%), url('{{ url_for('static', filename='uploads/' ~ concert['image_filename']) }}'); background-size: cover; background-position: center;{% else %}background: linear-gradient(135deg, #2d3436, #000000);{% endif %}">
+            
+            <!-- Admin Controls Overlay -->
+            <div class="admin-controls" style="position: absolute; top: 10px; right: 10px; z-index: 10;">
+                <div class="settings-gear" style="cursor: pointer; background: rgba(0,0,0,0.5); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);" onclick="toggleMenu('c-menu-{{ concert['id'] }}')">
+                    <i class="fas fa-cog" style="color: white; font-size: 0.9rem;"></i>
+                </div>
+                
+                <div id="c-menu-{{ concert['id'] }}" class="admin-dropdown" style="display: none; position: absolute; top: 35px; right: 0; background: #2d3436; border-radius: 8px; padding: 0.5rem; box-shadow: 0 5px 15px rgba(0,0,0,0.5); min-width: 140px; z-index: 20;">
+                    <a href="{{ url_for('edit_concert', concert_id=concert['id']) }}" style="display: block; padding: 0.5rem; color: white; text-decoration: none; font-size: 0.9rem;">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <form action="{{ url_for('admin_delete_concert', concert_id=concert['id']) }}" method="post" onsubmit="return confirm('Delete this concert?');" style="margin: 0;">
+                        <button type="submit" style="background: none; border: none; color: #ff7675; width: 100%; text-align: left; padding: 0.5rem; cursor: pointer; font-size: 0.9rem;">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </form>
+                    <hr style="border-color: rgba(255,255,255,0.1); margin: 0.2rem 0;">
+                    <form action="{{ url_for('admin_update_status', concert_id=concert['id']) }}" method="post" style="padding: 0.5rem;">
+                        <select name="status" onchange="this.form.submit()" style="width: 100%; background: rgba(0,0,0,0.3); color: white; border: none; padding: 2px; border-radius: 4px;">
+                            <option value="scheduled" {% if concert['status']=='scheduled' %}selected{% endif %}>Scheduled</option>
+                            <option value="cancelled" {% if concert['status']=='cancelled' %}selected{% endif %}>Cancelled</option>
+                            <option value="full" {% if concert['status']=='full' %}selected{% endif %}>Full</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            <div class="concert-meta" style="position: absolute; top: 10px; left: 10px;">
+                <span class="pill soft" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; backdrop-filter: blur(4px);">{{ concert['status'] }}</span>
+            </div>
+            
+            <div class="card-body" style="text-align: left; z-index: 1;">
+                <h3 style="font-size: 1.2rem; margin: 0 0 0.3rem 0; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">{{ concert['band_name'] }}</h3>
+                <p style="color: var(--muted); margin: 0 0 0.3rem 0; font-size: 0.9rem;"><i class="fas fa-map-marker-alt" style="color: #ff6b6b; width: 16px;"></i> {{ concert['venue'] }}, {{ concert['city'] }}</p>
+                <p style="color: var(--muted); margin: 0 0 0.8rem 0; font-size: 0.9rem;"><i class="far fa-clock" style="color: #ff6b6b; width: 16px;"></i> {{ concert['concert_datetime'].replace('T', ' ') }}</p>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #ffeaa7; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.8rem;">
+                    <span><i class="fas fa-ticket-alt"></i> {{ concert['sold_count'] }} / {{ concert['max_tickets'] }}</span>
+                    <span style="font-weight: bold; color: white; font-size: 1rem;">{{ concert['ticket_price'] }} $</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function toggleMenu(id) {
+        const menu = document.getElementById(id);
+        document.querySelectorAll('.admin-dropdown').forEach(el => {
+            if (el.id !== id) el.style.display = 'none';
+        });
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.settings-gear') && !e.target.closest('.admin-dropdown')) {
+            document.querySelectorAll('.admin-dropdown').forEach(el => el.style.display = 'none');
+        }
+    });
+</script>
+{% endblock %}

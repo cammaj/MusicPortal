@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 2rem; margin-top: 2rem;">
+    <h1 style="margin-top: 0;">My Tickets</h1>
+    <p class="lead" style="color: var(--muted); margin-bottom: 2rem;">Concerts you have purchased tickets for.</p>
+    
+    {% if tickets %}
+        <div class="concert-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+            {% for ticket in tickets %}
+                <div class="concert-card" style="background: rgba(255,255,255,0.05); border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.2s;">
+                    <div class="concert-image" style="height: 180px; overflow: hidden;">
+                        {% if ticket['image_filename'] %}
+                            <img src="{{ url_for('static', filename='uploads/' + ticket['image_filename']) }}" alt="{{ ticket['band_name'] }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            <div style="width: 100%; height: 100%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center;">No Image</div>
+                        {% endif %}
+                    </div>
+                    <div class="concert-info" style="padding: 1.5rem;">
+                        <h3 style="margin: 0 0 0.5rem 0;">{{ ticket['band_name'] }}</h3>
+                        <p style="margin: 0 0 0.5rem 0; color: var(--muted);"><i class="fas fa-map-marker-alt"></i> {{ ticket['venue'] }}, {{ ticket['city'] }}</p>
+                        <p style="margin: 0 0 1rem 0; color: var(--muted);"><i class="far fa-calendar-alt"></i> {{ ticket['concert_datetime'].replace('T', ' ') }}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                            <span style="font-weight: bold; color: var(--primary);">{{ ticket['qty'] }} Ticket(s)</span>
+                            <a href="{{ url_for('view_concert', concert_id=ticket['concert_id']) }}" class="pill ghost" style="font-size: 0.9rem;">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 3rem; background: rgba(255,255,255,0.02); border-radius: 16px;">
+            <p style="font-size: 1.2rem; color: var(--muted);">You haven't bought any tickets yet.</p>
+            <a href="{{ url_for('search_concerts') }}" class="pill" style="margin-top: 1rem;">Browse Concerts</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

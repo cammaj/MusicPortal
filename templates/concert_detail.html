@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 2rem; margin-top: 2rem;">
+    <div class="concert-detail-header" style="margin-bottom: 2rem;">
+        <a href="{{ url_for('search_concerts') }}" class="pill ghost">← Back to Concerts</a>
+    </div>
+    <div class="concert-detail-content" style="display: flex; gap: 2rem; flex-wrap: wrap;">
+        <div class="concert-image-large" style="flex: 1; min-width: 300px;">
+            {% if concert['image_filename'] %}
+                <img src="{{ url_for('static', filename='uploads/' + concert['image_filename']) }}" alt="{{ concert['band_name'] }}" style="width: 100%; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            {% else %}
+                <div class="placeholder-img" style="width: 100%; height: 300px; background: rgba(255,255,255,0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center;">No Image</div>
+            {% endif %}
+        </div>
+        <div class="concert-info-large" style="flex: 1; min-width: 300px;">
+            <h1 style="font-size: 2.5rem; margin-top: 0; margin-bottom: 1rem;">{{ concert['band_name'] }}</h1>
+            <p class="detail-row" style="font-size: 1.1rem; margin-bottom: 0.5rem;"><i class="fas fa-map-marker-alt" style="width: 24px; color: var(--primary);"></i> {{ concert['venue'] }}, {{ concert['city'] }}</p>
+            <p class="detail-row" style="font-size: 1.1rem; margin-bottom: 0.5rem;"><i class="far fa-calendar-alt" style="width: 24px; color: var(--primary);"></i> {{ concert['concert_datetime'].replace('T', ' ') }}</p>
+            <p class="detail-row" style="font-size: 1.1rem; margin-bottom: 0.5rem;"><i class="fas fa-tag" style="width: 24px; color: var(--primary);"></i> {{ concert['cost'] }}</p>
+            <p class="detail-row" style="font-size: 1.1rem; margin-bottom: 1.5rem;"><i class="fas fa-ticket-alt" style="width: 24px; color: var(--primary);"></i> {{ remaining }} tickets available</p>
+            
+            {% if concert['status'] == 'cancelled' %}
+                <div class="status-badge cancelled" style="display: inline-block; padding: 0.5rem 1rem; background: #ff4757; color: white; border-radius: 8px; font-weight: bold;">Cancelled</div>
+            {% elif remaining <= 0 or concert['status'] == 'full' %}
+                <div class="status-badge sold-out" style="display: inline-block; padding: 0.5rem 1rem; background: #ffa502; color: white; border-radius: 8px; font-weight: bold;">Sold Out</div>
+            {% else %}
+                {% if g.user and g.user['role'] == 'fan' %}
+                    <form action="{{ url_for('buy_ticket', concert_id=concert['id']) }}" method="post" class="buy-form" style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="margin-bottom: 1rem;">
+                            <label for="qty" style="display: block; margin-bottom: 0.5rem;">Quantity:</label>
+                            <input type="number" id="qty" name="qty" value="1" min="1" max="{{ remaining }}" class="qty-input" style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;">
+                        </div>
+                        <button type="submit" class="pill" style="width: 100%; justify-content: center; background: linear-gradient(90deg, #5de0ff, #7f53ff); border: none; cursor: pointer;">Buy Tickets</button>
+                    </form>
+                {% elif not g.user %}
+                    <p><a href="{{ url_for('login') }}" style="color: var(--primary);">Log in</a> to buy tickets.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

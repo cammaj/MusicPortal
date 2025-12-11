@@ -2,23 +2,23 @@
 {% block content %}
 <section class="auth-hero">
   <div class="auth-panel glass">
-    <p class="eyebrow">Logowanie</p>
-    <h2>Wróć na scenę</h2>
+    <p class="eyebrow">Login</p>
+    <h2>Welcome Back</h2>
     <form method="post" class="form-grid">
       <label>Username
-        <input type="text" name="username" required placeholder="Twoja nazwa">
+        <input type="text" name="username" required placeholder="Your username">
       </label>
       <label>Password
-        <input type="password" name="password" required placeholder="Hasło">
+        <input type="password" name="password" required placeholder="Password">
       </label>
-      <button type="submit" class="button wide">Login</button>
+      <button type="submit" class="button wide">Log In</button>
     </form>
     <div class="social-row">
       <span class="pill">Facebook</span>
       <span class="pill">Google</span>
       <span class="pill">Apple</span>
     </div>
-    <p class="muted">Nie masz konta? <a href="{{ url_for('register') }}">Zarejestruj się</a></p>
+    <p class="muted">Don't have an account? <a href="{{ url_for('register') }}">Sign up</a></p>
   </div>
 </section>
 {% endblock %}

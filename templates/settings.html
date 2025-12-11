@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <p class="eyebrow">Account</p>
+    <h2>Profile Settings</h2>
+  </div>
+  <a class="pill" href="{{ url_for('band_dashboard') if g.user['role'] == 'band' else url_for('search_concerts') }}">Back</a>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="glass form-card" style="max-width: 600px; margin: 0 auto;">
+  <div style="text-align: center; margin-bottom: 2rem;">
+    <div style="width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.1); margin: 0 auto 1rem; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.2);">
+      {% if g.user['profile_image'] %}
+        <img src="{{ url_for('static', filename='uploads/' + g.user['profile_image']) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+      {% else %}
+        <span style="font-size: 3rem; color: rgba(255,255,255,0.3);">{{ g.user['username'][:1].upper() }}</span>
+      {% endif %}
+    </div>
+    <h3 style="margin: 0;">{{ g.user['username'] }}</h3>
+    <p style="color: var(--muted); margin: 0;">{{ g.user['role'] }}</p>
+  </div>
+
+  <div class="form-grid" style="display: flex; flex-direction: column; gap: 1.5rem;">
+    <label>Email Address
+      <input type="email" name="email" value="{{ g.user['email'] or '' }}" placeholder="your@email.com">
+    </label>
+    
+    <label>Profile Image
+      <input type="file" name="profile_image" accept="image/*">
+    </label>
+  </div>
+
+  <div style="margin-top: 2rem; text-align: right;">
+    <button type="submit" class="button">Save Changes</button>
+  </div>
+</form>
+{% endblock %}

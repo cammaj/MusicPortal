@@ -23,11 +23,20 @@
         {% if g.user['role'] == 'band' %}
           <a class="pill" href="{{ url_for('band_dashboard') }}">My Listings</a>
           <a class="pill" href="{{ url_for('create_concert') }}">New Concert</a>
+        {% elif g.user['role'] == 'admin' %}
+          <a class="pill" href="{{ url_for('admin_dashboard') }}">Dashboard</a>
         {% else %}
           <a class="pill" href="{{ url_for('search_concerts') }}">Discover</a>
           <a class="pill" href="{{ url_for('selected_concerts_view') }}">Favorites</a>
+          <a class="pill" href="{{ url_for('tickets_bought') }}">My Tickets</a>
         {% endif %}
-        <span class="user-pill">{{ g.user['username'] }} · {{ g.user['role'] }}</span>
+        <span class="user-pill">
+          {% if g.user['profile_image'] %}
+            <img src="{{ url_for('static', filename='uploads/' ~ g.user['profile_image']) }}" alt="" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle;">
+          {% endif %}
+          {{ g.user['username'] }} · {{ g.user['role'] }}
+        </span>
+        <a class="pill" href="{{ url_for('settings') }}" title="Settings"><i class="fas fa-cog"></i></a>
         <a class="pill ghost" href="{{ url_for('logout') }}">Logout</a>
       {% else %}
         <a class="pill" href="{{ url_for('login') }}">Login</a>
